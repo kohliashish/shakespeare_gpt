@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shakespeare Story Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <h1>Shakespeare Story Generator</h1>
+    </header>
+
+    <main>
+        <section id="storyInput">
+            <form id="storyForm">
+                <textarea id="storyPrompt" class="input" placeholder="Enter starting prompt to generate a story"></textarea>
+                <button type="submit" id="generateStoryButton">Generate Story</button>
+            </form>
+        </section>
+
+        <section id="infoDisplay">
+            <div id="loadingSpinner" class="loader"></div>
+            <div id="countdown"></div>
+        </section>
+
+        <section id="storySection" style="display:block;" class="content">
+            <textarea id="storySection-Content">Story will appear here</textarea>
+            <!-- <button type="button" id="storySection-Button">Identify Characters</button> -->
+        </section>
+
+        <section id="characterSection" style="display:none;" class="content">
+            <div id="characterSection-Content">Character list will appear here</div>
+            <button type="button" id="characterSection-Button">Identify Characters</button>
+        </section>
+
+        <section id="audioSection" style="display:none;" class="content">
+            <div id="audioSection-Content" class="audio" style="float: inline-start;"></div>
+            <div id="audioSection-Buttons" style="float: inline-end;">
+                <button type="button" id="audioSection-Button1" style="display:none;">Generate Audio</button>
+                <button type="button" id="audioSection-Button2" style="display:none;">Download Audio</button>
+                <button type="button" id="audioSection-Button3" style="display:none;">Generate Frames</button>
+            </div>
+        </section>
+
+        <section id="imageSection" style="display:none;" class="content">
+            <div id="imageSection-Content" class="scrollable-container" style="float: inline-start;">Generated Images will appear here</div>
+            <button type="button" id="imageSection-Button" style="float: inline-end;">Generate Video</button>
+        </section>
+
+        <section id="videoSection" style="display:none;" class="content">
+            <div id="videoSection-Content" class="scrollable-container">Generated Videos will appear here</div>
+            <button type="button" id="videoSection-Button">Generate Video</button>
+        </section>
+
+        <section id="errorDisplay" style="display:none;"></section>
+    </main>
+
+    <footer>
+        <p>© 2023 Shakespeare Story Generator</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>
