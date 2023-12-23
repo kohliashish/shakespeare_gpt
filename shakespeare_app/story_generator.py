@@ -2,7 +2,7 @@ from openai import OpenAI
 from flask import current_app as app
 import json, re
 
-def generate_story(prompt, max_tokens=4000):
+def generate_story(prompt, context, max_tokens=4000):
     api_key = app.config['OPENAI_API_KEY']
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
@@ -11,7 +11,7 @@ def generate_story(prompt, max_tokens=4000):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         messages=[
-            {"role": "system", "content": "You are an intelligent story-writer. You create a short story in 150 words or less from the user content, that contains character development, an interesting plot and  climax. You ensure that the generated story does not use any generic phrases and provide detailed description of scenes."},
+            {"role": "system", "content": context},
             {"role": "user", "content": prompt}
         ],
         max_tokens=max_tokens,

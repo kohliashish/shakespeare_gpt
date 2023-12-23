@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showElement('loadingSpinner');
         hideElement('generateStoryButton');
         var storyPrompt = document.getElementById('storyPrompt').value;
-        
+        const context = 'You are an intelligent story-writer. You create a short story in 150 words or less from the user content, that contains character development, an interesting plot and  climax. You ensure that the generated story does not use any generic phrases and provide detailed description of scenes.'
         // Show a loading message or spinner
         document.getElementById('storySection').style.display = 'block';
         document.getElementById('storySection-Content').value = 'Generating Story...';
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ prompt: storyPrompt }),
+            body: JSON.stringify({ prompt: storyPrompt, context: context }),
         })
         .then(response => response.json())
         .then(data => {

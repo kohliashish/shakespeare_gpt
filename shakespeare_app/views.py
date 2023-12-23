@@ -33,8 +33,9 @@ def serve_resources(filename):
 def story():
     data = request.get_json()
     prompt = data.get('prompt')
+    context = data.get('context')
     if prompt:
-        story = generate_story(prompt)
+        story = generate_story(prompt, context)
         return jsonify({'story': story}), 200
     else:
         return jsonify({'error': 'No prompt provided'}), 400
