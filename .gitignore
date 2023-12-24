@@ -2,3 +2,8 @@ DS_Store
 shakespeare_app/resources/batch*
 shakespeare_app/resources/speech.mp3
 shakespeare_app/resources/output_video.mp4
+__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
+shakespeare_app/__pycache__

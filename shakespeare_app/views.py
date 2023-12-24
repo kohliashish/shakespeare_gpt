@@ -8,6 +8,7 @@ from shakespeare_app.video_generator import generate_video
 from pydub import AudioSegment
 from itertools import accumulate
 from pathlib import Path
+import git
 
 
 #Global Context
@@ -24,6 +25,16 @@ def get_audio_duration(audio_path):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/update_server', methods=['POST'])
+def webhook():
+    if request.method == 'POST':
+        repo = git.Repo('path/to/git_repo')
+        origin = repo.remotes.origin
+        origin.pull()
+        return jsonify({'success': 'Updated PythonAnywhere successfully'}), 200
+    else:
+        return jsonify({'error': 'Wrong event type'}), 400
 
 @app.route('/resources/<path:filename>')
 def serve_resources(filename):
