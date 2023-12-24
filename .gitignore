@@ -6,3 +6,5 @@ __pycache__
 __pycache__/
 shakespeare_app/__pycache__
 *.pyc
+*~
+*.swp
