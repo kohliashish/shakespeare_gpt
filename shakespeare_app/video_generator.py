@@ -4,10 +4,14 @@ from moviepy.video.fx.all import fadein, fadeout
 from pathlib import Path
 from PIL import Image
 import numpy as np
+import json
+from re import sub
 
-def generate_video(image_paths, audio_path, clip_duration=5, transition_duration=1, output_file='output_video.mp4'):
+def generate_video(image_paths, audio_path, metadata, clip_duration=5, transition_duration=1):
     clips = []
     final_duration = 0
+    output_video_file=sub('[\W_]+', '', metadata['title'])+'.mp4'
+    output_metadata_file=sub('[\W_]+', '', metadata['title'])+'.json'
 
     for img_path in image_paths:
         img_path_str = str(img_path)
@@ -54,7 +58,11 @@ def generate_video(image_paths, audio_path, clip_duration=5, transition_duration
     final_video = final_video.crop(x1=crop_x, y1=crop_y, width=576, height=1024)
 
     # Write the result to a file
-    video_file_path = Path(__file__).parent / f"resources/{output_file}"
+    video_file_path = Path(__file__).parent / f"resources/{output_video_file}"
     final_video.write_videofile(str(video_file_path), fps=24, audio_codec="aac")
-
+    # Write metadata along with the file
+    md_file_path = Path(__file__).parent / f"resources/{output_metadata_file}"
+    metadata = json.dumps(metadata, indent=4)
+    with open(md_file_path, 'w') as f:
+        f.write(metadata)
     return video_file_path

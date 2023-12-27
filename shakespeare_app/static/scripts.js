@@ -1,4 +1,7 @@
 let audioBlobUrl = '';  // Global variable to store audio path
+let story = ''; // Global variable to store the generated story
+let videoUrl = '' // Global variable to store final video path
+let metadata = '' // Global variable to store final metadata
 
 function showElement(elementId) {
     document.getElementById(elementId).style.display = 'block';
@@ -10,6 +13,7 @@ function hideElement(elementId) {
 
 function updateUIWithStory(section, data) {
     if (section == 'storySection') {
+        story = data.story;
         document.getElementById('storySection-Content').value = data.story; 
         showElement('audioSection');
         showElement('audioSection-Button1');
@@ -24,6 +28,7 @@ function updateUIWithStory(section, data) {
         showElement('audioSection-Button2');
         showElement('audioSection-Button3');
         showElement('imageSection');
+        hideElement('imageSection-Button');
     }
     if (section == 'imageSection') {
         const imageSectionContent = document.getElementById('imageSection-Content');
@@ -34,16 +39,36 @@ function updateUIWithStory(section, data) {
             img.classList.add('story-image'); // Add a class for styling
             imageSectionContent.appendChild(img);
         });
+        showElement('imageSection-Button');
     }
     if (section == 'videoSection') {
         const videoSectionContent = document.getElementById('videoSection-Content');
         videoSectionContent.innerHTML = ''; // Clear existing content
         if (data.video_path) {
+            videoUrl = data.video_path
             const videoElement = document.createElement('video');
-            videoElement.src = data.video_path;
+            videoElement.src = videoUrl;
             videoElement.controls = true;
+            videoElement.autoplay = true;
+            videoElement.loop = true;
             videoSectionContent.appendChild(videoElement);
-            showElement('videoSection');
+
+            // //Appending metadata to metadata section as well
+            // const metadataSectionContent = document.getElementById('metadataSection-Content');
+            // metadata = data.video_output.metadata
+            // metadataSectionContent.innerHTML = ''
+            // const mainUL = document.createElement('ul')
+            // const titleLI = document.createElement('li');
+            // const descriptionLI = document.createElement('li');
+            // const genreLI = document.createElement('li');
+            // titleLI.innerHTML = metadata.title;
+            // mainUL.appendChild(titleLI);
+            // descriptionLI.innerHTML = metadata.description;
+            // mainUL.appendChild(descriptionLI);
+            // genreLI.innerHTML = metadata.genre;
+            // mainUL.appendChild(genreLI);
+            // showElement('videoSection');
+            // showElement('metadataSection');
         }
     }
 }
@@ -54,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showElement('loadingSpinner');
         hideElement('generateStoryButton');
         var storyPrompt = document.getElementById('storyPrompt').value;
-        const context = 'You are an intelligent story-writer. You create a short story in 150 words or less from the user content, that contains character development, an interesting plot and  climax. You ensure that the generated story does not use any generic phrases and provide detailed description of scenes.'
+        const context = 'You are an intelligent story-writer. You create a short story STRICTLY IN 150 WORDS OR LESS from the user content, that contains character development, an interesting plot and  climax. You ensure that the generated story does not use any generic phrases and that it provides a detailed description of scenes.'
         // Show a loading message or spinner
         document.getElementById('storySection').style.display = 'block';
         document.getElementById('storySection-Content').value = 'Generating Story...';
@@ -105,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
 
-    // Adding Download functionality
+    // Adding Download functionality for audio
     document.getElementById('audioSection-Button2').addEventListener('click', function() {
         const a = document.createElement('a');
         a.href = audioBlobUrl;
@@ -138,10 +163,11 @@ document.addEventListener('DOMContentLoaded', function() {
         showElement('loadingSpinner');
         const imagePaths = Array.from(document.querySelectorAll('#imageSection-Content img')).map(img => img.src);
         const voiceoverPath = audioBlobUrl;
+        hideElement('imageSection-Button');
         fetch('/generateVideo', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imagefiles: imagePaths, voicefile: voiceoverPath })
+            body: JSON.stringify({ imagefiles: imagePaths, voicefile: voiceoverPath, story: story })
         })
         .then(response => response.json())
         .then(data => {
@@ -152,5 +178,14 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('errorDisplay').textContent = 'Unable to generate video due to an error.';
             console.error('Error:', error);
         });
+    });
+
+    // Adding Download functionality for video
+    document.getElementById('videoSection-Button').addEventListener('click', function() {
+        const a = document.createElement('a');
+        const filename = videoUrl.substring(videoUrl.lastIndexOf('/')+1)
+        a.href = videoUrl;
+        a.download = filename;
+        a.click();
     });
 });

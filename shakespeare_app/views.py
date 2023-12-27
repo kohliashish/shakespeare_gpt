@@ -1,7 +1,7 @@
 from flask import jsonify, request, send_file, render_template, make_response, send_from_directory
-import re
+import re, random
 from shakespeare_app import app
-from shakespeare_app.story_generator import generate_story, extract_characters
+from shakespeare_app.story_generator import generate_story, extract_characters, identify_metadata
 from shakespeare_app.voiceover_generator import generate_voiceover
 from shakespeare_app.image_generator import generate_image,generate_images
 from shakespeare_app.video_generator import generate_video
@@ -46,7 +46,7 @@ def story():
     prompt = data.get('prompt')
     context = data.get('context')
     if prompt:
-        story = generate_story(prompt, context)
+        story = generate_story(prompt, context, api_key)
         return jsonify({'story': story}), 200
     else:
         return jsonify({'error': 'No prompt provided'}), 400
@@ -102,13 +102,24 @@ def voiceover():
 
 @app.route('/generateImage', methods=['POST'])
 def images():
+    batch = random.randint(0,99)
     data = request.get_json()
-    prompt = data.get('character')
-    character_name = data.get('name')
-    if prompt:
-        image_url = generate_image(prompt,character_name)
-        # return jsonify({'image_url': image_url}), 200
+    prompt = data.get('prompt')
+    image_name = data.get('name')
+    context = data.get('context')
+    if prompt and image_name and context:
+        image_url = generate_image(prompt, context, image_name, batch, api_key)
         return send_file(image_url, as_attachment=True, mimetype='image/jpg')
+    elif prompt and not image_name:
+        image_name = random.randint(0,99)
+        if context:
+            image_url = generate_image(prompt, context, image_name, batch, api_key)
+            return send_file(image_url, as_attachment=True, mimetype='image/jpg')
+        else:
+            #Default context in it's absence
+            context = 'The image should be life-like and ultra high definition.'
+            image_url = generate_image(prompt, context, image_name, batch, api_key)
+            return send_file(image_url, as_attachment=True, mimetype='image/jpg')
     else:
         return jsonify({'error': 'No prompt provided'}), 400
 
@@ -116,15 +127,26 @@ def images():
 def video():
     data = request.get_json()
     imagefiles = data.get('imagefiles')
+    story = data.get('story')
     images_path = [Path(app.root_path) / 'resources' / img_path.split('/')[-1] for img_path in imagefiles]
     audio_path = Path(app.root_path) / 'resources/speech.mp3'
 
-    if images_path and audio_path:
+    if images_path and audio_path and story:
+        metadata = identify_metadata(story, api_key)
         # image_paths = [Path(app.root_path) / 'resources' / img for img in imagefiles]
         # audio_path = Path(app.root_path) / 'resources' / voicefile
-        video_path = generate_video(images_path, audio_path)
+        video_path = generate_video(images_path, audio_path, metadata)
         video_relative_path = video_path.relative_to(Path(app.root_path))
-
         return jsonify({'video_path': str(video_relative_path)})
     else:
         return jsonify({'error': 'Missing image or voice file paths'}), 400
+    
+@app.route('/generateMetadata', methods=['POST'])
+def metadata():
+    data = request.get_json()
+    story = data.get('story')
+    if story:
+        metadata = identify_metadata(story, api_key)
+        return jsonify(metadata), 200
+    else:
+        return jsonify({'error': 'No story provided'}), 400

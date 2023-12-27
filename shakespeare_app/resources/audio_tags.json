@@ -1,0 +1,15 @@
+{
+    "ghost1.mp3": ["cartoon", "horror", "whimsical", "ghostly", "melodramatic"],
+    "creepy1.mp3": ["whimsical", "ghostly", "cartoon", "scary"],
+    "creepy2.mp3": ["creepy", "horror", "eerie", "scary", "slow"],
+    "serious1.mp3": ["serious", "mystery", "eerie", "murder", "crime"],
+    "futuristic1.mp3": ["general", "story", "upbeat", "futuristic"],
+    "futuristic2.mp3": ["general", "story", "upbeat", "futuristic"],
+    "futuristic3.mp3": ["general", "story", "upbeat", "futuristic"],
+    "asian1.mp3": ["asian", "folk", "regional", "country", "general", "story"],
+    "indian1.mp3": ["indian", "folk", "regional", "tabla", "general", "story"],
+    "indian2.mp3": ["indian", "folk", "regional", "tabla", "general", "story"],
+    "indian3.mp3": ["indian", "folk", "regional", "tabla", "general", "story"],
+    "upbeat1.mp3": ["general", "story", "upbeat", "futuristic"],
+    "upbeat2.mp3": ["general", "story", "upbeat", "futuristic"]
+}

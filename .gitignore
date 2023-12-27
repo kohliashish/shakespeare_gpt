@@ -1,5 +1,9 @@
-DS_Store
+.DS_Store
+shakespeare_app/. DS_Store
+env_shakespeare/*
+env_shakespeare
 shakespeare_app/resources/batch*
+shakespeare_app/resources/*.json
 shakespeare_app/resources/speech.mp3
 shakespeare_app/resources/output_video.mp4
 __pycache__
