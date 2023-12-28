@@ -15,6 +15,7 @@ import git, json
 api_key = app.config['OPENAI_API_KEY']
 audio_length = 0
 images_path = []
+tts_voices = ["alloy","echo","fable","onyx","nova","shimmer"]
 global audio_path
 audio_path = ''
 
@@ -77,7 +78,7 @@ def frames():
         # Creating a cumulative list of lines for retaining context
         lines_cumulative = list(accumulate(lines, lambda x, y: '. '.join([x, y])))
         images_path = generate_images(lines,lines_cumulative,len(lines),api_key)
-        images_relative_paths = [str(Path('resources').joinpath(Path(p).name)) for p in images_path]
+        images_relative_paths = [str(Path('resources/inprocess').joinpath(Path(p).name)) for p in images_path]
         return jsonify({'image_paths': images_relative_paths}), 200
     else:
         return jsonify({'error': 'No prompt provided'}), 400
@@ -94,7 +95,8 @@ def voiceover():
             response.headers['Content-Type'] = 'audio/mpeg'
             return response
         elif story and not voice:
-            voice_file = generate_voiceover(story)
+            voice = random.choice(tts_voices)
+            voice_file = generate_voiceover(story, voice)
             audio_length = get_audio_duration(voice_file)
             response = make_response(send_file(voice_file, as_attachment=True, mimetype='audio/mpeg'))
             response.headers['Content-Type'] = 'audio/mpeg'

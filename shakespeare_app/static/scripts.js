@@ -28,12 +28,13 @@ function updateUIWithStory(section, data) {
         showElement('audioSection-Button1');
     }
     if (section == 'audioSection') {
+        const audioSectionContent = document.getElementById('audioSection-Content');
+        audioSectionContent.innerHTML = '';
         audioBlobUrl = URL.createObjectURL(data);
         const audioElement = document.createElement('audio');
         audioElement.src = audioBlobUrl;
         audioElement.controls = true; 
-        document.getElementById('audioSection-Content').value = '';
-        document.getElementById('audioSection-Content').appendChild(audioElement);
+        audioSectionContent.appendChild(audioElement);
         showElement('audioSection-Button2');
         showElement('audioSection-Button3');
         hideElement('audioSection-Button1');

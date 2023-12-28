@@ -14,6 +14,7 @@ def select_background_music(story_genre_tags):
     audio_tags = loads(open(audio_tags_path, "r").read())
     matched_audio_files = []
     default_audio_file = 'upbeat1.mp3'
+    story_genre_tags = story_genre_tags.strip().split(",")
 
     for audio_file, tags in audio_tags.items():
         overlap = len(set(story_genre_tags) & set(tags))
