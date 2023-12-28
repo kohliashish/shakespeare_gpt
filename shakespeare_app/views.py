@@ -5,7 +5,6 @@ from shakespeare_app.story_generator import generate_story, extract_characters, 
 from shakespeare_app.voiceover_generator import generate_voiceover
 from shakespeare_app.image_generator import generate_image,generate_images
 from shakespeare_app.video_generator import generate_video
-from pydub import AudioSegment
 from itertools import accumulate
 from pathlib import Path
 import git, json
@@ -19,10 +18,6 @@ tts_voices = ["alloy","echo","fable","onyx","nova","shimmer"]
 global audio_path
 audio_path = ''
 
-def get_audio_duration(audio_path):
-    audio = AudioSegment.from_file(audio_path)
-    return len(audio) / 1000
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -30,7 +25,7 @@ def index():
 @app.route('/update_server', methods=['POST'])
 def webhook():
     if request.method == 'POST':
-        repo = git.Repo('path/to/git_repo')
+        repo = git.Repo('https://github.com/kohlisaab/shakespeare_gpt.git')
         origin = repo.remotes.origin
         origin.pull()
         return jsonify({'success': 'Updated PythonAnywhere successfully'}), 200
@@ -97,7 +92,6 @@ def voiceover():
         elif story and not voice:
             voice = random.choice(tts_voices)
             voice_file = generate_voiceover(story, voice)
-            audio_length = get_audio_duration(voice_file)
             response = make_response(send_file(voice_file, as_attachment=True, mimetype='audio/mpeg'))
             response.headers['Content-Type'] = 'audio/mpeg'
             return response
