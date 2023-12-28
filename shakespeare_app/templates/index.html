@@ -22,7 +22,13 @@
 
         <section id="infoDisplay">
             <div id="loadingSpinner" class="loader"></div>
-            <div id="countdown"></div>
+            <textarea id="promptSection" class="input">You are an intelligent story-writer. You create a short story STRICTLY IN 150 WORDS OR LESS from the user content, that contains character development, an interesting plot and  climax. You ensure that the generated story does not use any generic phrases and that it provides a detailed description of scenes.</textarea>
+            <div id="metadataSection"></div>
+            <div>
+                <label for="bgMusicVolume">Background Music Volume: </label>
+                <input type = "range" id="bgMusicVolume" min="0.1" max="1" step="0.1" value="0.5">
+                    <span id="volumeValue">0.5</span>
+            </div>
         </section>
 
         <section id="storySection" style="display:block;" class="content">
@@ -47,10 +53,6 @@
         <section id="imageSection" style="display:none;" class="content">
             <div id="imageSection-Content" class="scrollable-container" style="float: inline-start;">Generated Images will appear here</div>
             <button type="button" id="imageSection-Button" style="float: inline-end;">Generate Video</button>
-        </section>
-
-        <section id="metadataSection" style="display:none;" class="content">
-            <div id="metadataSection-Content" class="scrollable-container"></div>
         </section>
 
         <section id="videoSection" style="display:none;" class="content">

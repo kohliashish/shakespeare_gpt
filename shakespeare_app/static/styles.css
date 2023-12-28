@@ -136,3 +136,40 @@ footer {
     align-items: center;
     margin-top: 10px; /* Add some space above the buttons */
 }
+
+#infoDisplay {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #fff;
+}
+
+#loadingSpinner {
+    flex-basis: 10%;
+}
+
+#promptSection {
+    flex-grow: 2;
+    height: auto;
+    margin: 0 10px;
+}
+
+.bgMusicControl {
+    display: flex;
+    align-items: center;
+    flex-basis: 30%;
+}
+
+.bgMusicControl label {
+    margin-right: 10px;
+}
+
+#bgMusicVolume {
+    margin: 0 10px 0 0;
+}
+
+.metadataContent {
+    margin-top: 10px;
+}

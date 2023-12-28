@@ -2,13 +2,15 @@ from openai import OpenAI
 from flask import current_app as app
 import json, re
 
+model_version = "gpt-4"
+
 def generate_story(prompt, context, api_key, max_tokens=4000):
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key=api_key,
     )
     response = client.chat.completions.create(
-        model="gpt-4-1106-preview",
+        model=model_version,
         messages=[
             {"role": "system", "content": context},
             {"role": "user", "content": prompt}
@@ -52,7 +54,7 @@ def extract_characters(story_text, api_key, max_tokens=3000):
     )
 
     response = client.chat.completions.create(
-        model="gpt-4-1106-preview",
+        model=model_version,
         messages=[
             {"role": "system", "content": "You create a list of JSON objects of all the characters used in the story provided in the prompt. Each JSON object has 6 elements - 1. Name, 2. Gender, 3. Looks, 4. Nature and Personality, 5. Attire and, 6. Facial expression for each character."},
             {"role": "user", "content": story_text}
@@ -71,12 +73,12 @@ def identify_metadata(story_text, api_key):
     )
 
     response = client.chat.completions.create(
-        model="gpt-4-1106-preview",
+        model=model_version,
         messages=[
-            {"role": "system", "content": "You are a smart classifier. You create a JSON object containing story metadata as provided in the prompt. This JSON object should have 3 elements - 1. Story Title, 2. Story description (30 words or less), 3. Genre (1 or 2 words to describe the story). The output should have exactly 3 fields - \"title\", \"description\", and \"genre\"."},
+            {"role": "system", "content": "You are a smart classifier. You create a JSON object containing story metadata as provided in the prompt. This JSON object should have 3 elements - 1. Story Title, 2. Story description (30 words or less), 3. Genre (2 or 3 words from this list to describe the story - 'upbeat', 'melodramatic', 'futuristic', 'murder', 'scary', 'slow', 'asian', 'eerie', 'tabla', 'mystery', 'regional', 'horror', 'crime', 'creepy', 'serious', 'country', 'ghostly', 'story', 'indian', 'general', 'cartoon', 'folk', 'whimsical'). The output should have exactly 3 fields - \"title\", \"description\", and \"genre\"."},
             {"role": "user", "content": story_text}
         ],
-        max_tokens=50,
+        max_tokens=3000,
         temperature=0.7
     )
 

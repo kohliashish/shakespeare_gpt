@@ -6,6 +6,10 @@ shakespeare_app/resources/batch*
 shakespeare_app/resources/*.json
 shakespeare_app/resources/speech.mp3
 shakespeare_app/resources/output_video.mp4
+shakespeare_app/resources/inprocess/*.png
+shakespeare_app/resources/inprocess/*.mp3
+shakespeare_app/resources/inprocess/*.mp4
+shakespeare_app/resources/inprocess/*.json
 __pycache__
 __pycache__/
 shakespeare_app/__pycache__

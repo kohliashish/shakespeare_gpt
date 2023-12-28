@@ -11,6 +11,15 @@ function hideElement(elementId) {
     document.getElementById(elementId).style.display = 'none';
 }
 
+function toTitleCase(str) {
+    return str.replace(
+        /\w\S*/g,
+        function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
+}
+
 function updateUIWithStory(section, data) {
     if (section == 'storySection') {
         story = data.story;
@@ -27,6 +36,7 @@ function updateUIWithStory(section, data) {
         document.getElementById('audioSection-Content').appendChild(audioElement);
         showElement('audioSection-Button2');
         showElement('audioSection-Button3');
+        hideElement('audioSection-Button1');
         showElement('imageSection');
         hideElement('imageSection-Button');
     }
@@ -52,23 +62,22 @@ function updateUIWithStory(section, data) {
             videoElement.autoplay = true;
             videoElement.loop = true;
             videoSectionContent.appendChild(videoElement);
-
-            // //Appending metadata to metadata section as well
-            // const metadataSectionContent = document.getElementById('metadataSection-Content');
-            // metadata = data.video_output.metadata
-            // metadataSectionContent.innerHTML = ''
-            // const mainUL = document.createElement('ul')
-            // const titleLI = document.createElement('li');
-            // const descriptionLI = document.createElement('li');
-            // const genreLI = document.createElement('li');
-            // titleLI.innerHTML = metadata.title;
-            // mainUL.appendChild(titleLI);
-            // descriptionLI.innerHTML = metadata.description;
-            // mainUL.appendChild(descriptionLI);
-            // genreLI.innerHTML = metadata.genre;
-            // mainUL.appendChild(genreLI);
-            // showElement('videoSection');
-            // showElement('metadataSection');
+        }
+        showElement('imageSection-Button');
+        // Renaming the button's text
+        document.getElementById('imageSection-Button').value = "Re-generate video"
+    }
+    if (section == 'infoDisplay') {
+        const metadataSection = document.getElementById('metadataSection');
+        console.log(metadata);
+        metadataSection.innerHTML = '';
+        if (data.metadata) {
+            metadata = data.metadata
+            for(const key in metadata) {
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${toTitleCase(key)}</strong>: ${metadata[key]}`;
+                metadataSection.appendChild(div);
+            }
         }
     }
 }
@@ -79,7 +88,8 @@ document.addEventListener('DOMContentLoaded', function() {
         showElement('loadingSpinner');
         hideElement('generateStoryButton');
         var storyPrompt = document.getElementById('storyPrompt').value;
-        const context = 'You are an intelligent story-writer. You create a short story STRICTLY IN 150 WORDS OR LESS from the user content, that contains character development, an interesting plot and  climax. You ensure that the generated story does not use any generic phrases and that it provides a detailed description of scenes.'
+        var context = document.getElementById('promptSection').value;
+        // const context = 'You are an intelligent story-writer. You create a short story STRICTLY IN 150 WORDS OR LESS from the user content, that contains character development, an interesting plot and  climax. You ensure that the generated story does not use any generic phrases and that it provides a detailed description of scenes.'
         // Show a loading message or spinner
         document.getElementById('storySection').style.display = 'block';
         document.getElementById('storySection-Content').value = 'Generating Story...';
@@ -93,14 +103,36 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            updateUIWithStory('storySection',data)
-            hideElement('loadingSpinner');
+            updateUIWithStory('storySection',data);
             showElement('generateStoryButton');
+            // Create Metadata file for the story
+            fetch('/generateMetadata', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({story: story}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // console.log(data);
+                updateUIWithStory('infoDisplay',data);
+            })
+            .catch(error => {
+                console.error('Error:', error.message)
+                hideElement('loadingSpinner');
+            });
+            hideElement('loadingSpinner');
         })
         .catch(error => {
             console.error('Error:', error.message)
             hideElement('loadingSpinner');
         });
+    });
+
+    // Slider controls
+    document.getElementById('bgMusicVolume').addEventListener('input', function() {
+        document.getElementById('volumeValue').textContent = this.value;
     });
 
     // Generating Voice Over
@@ -125,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(blob => {
             hideElement('loadingSpinner');
-            updateUIWithStory('audioSection',blob)
+            updateUIWithStory('audioSection',blob);
         })
 
     });
@@ -149,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            updateUIWithStory('imageSection',data)
+            updateUIWithStory('imageSection',data);
             hideElement('loadingSpinner');
         })
         .catch(error => {
@@ -163,15 +195,16 @@ document.addEventListener('DOMContentLoaded', function() {
         showElement('loadingSpinner');
         const imagePaths = Array.from(document.querySelectorAll('#imageSection-Content img')).map(img => img.src);
         const voiceoverPath = audioBlobUrl;
+        const bgMusicVol = document.getElementById('bgMusicVolume').value;
         hideElement('imageSection-Button');
         fetch('/generateVideo', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imagefiles: imagePaths, voicefile: voiceoverPath, story: story })
+            body: JSON.stringify({ imagefiles: imagePaths, voicefile: voiceoverPath, metadata: metadata, background_volume: bgMusicVol })
         })
         .then(response => response.json())
         .then(data => {
-            updateUIWithStory('videoSection',data)
+            updateUIWithStory('videoSection',data);
             hideElement('loadingSpinner');
         })
         .catch(error => {

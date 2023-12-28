@@ -23,7 +23,7 @@ def generate_image(prompt,context, name,batch_number,api_key):
 
     image_url = response.data[0].url  # Assuming the response includes an image URL
     image_content = get(image_url) # Downloading the generated image from provided URL
-    image_file_path = Path(__file__).parent / f"resources/batch_{batch_number}_{name}.png"
+    image_file_path = Path(__file__).parent / f"resources/inprocess/batch_{batch_number}_{name}.png"
 
     with open(image_file_path, 'wb') as f:
         f.write(image_content.content)

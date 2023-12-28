@@ -8,7 +8,7 @@ from shakespeare_app.video_generator import generate_video
 from pydub import AudioSegment
 from itertools import accumulate
 from pathlib import Path
-import git
+import git, json
 
 
 #Global Context
@@ -39,6 +39,10 @@ def webhook():
 @app.route('/resources/<path:filename>')
 def serve_resources(filename):
     return send_from_directory('resources', filename)
+
+@app.route('/resources/inprocess/<path:filename>')
+def serve_inprocess_files(filename):
+    return send_from_directory('resources/inprocess', filename)
 
 @app.route('/generateStory', methods=['POST'])
 def story():
@@ -127,19 +131,18 @@ def images():
 def video():
     data = request.get_json()
     imagefiles = data.get('imagefiles')
-    story = data.get('story')
-    images_path = [Path(app.root_path) / 'resources' / img_path.split('/')[-1] for img_path in imagefiles]
-    audio_path = Path(app.root_path) / 'resources/speech.mp3'
+    metadata = data.get('metadata')
+    background_volume = data.get('background_volume')
 
-    if images_path and audio_path and story:
-        metadata = identify_metadata(story, api_key)
-        # image_paths = [Path(app.root_path) / 'resources' / img for img in imagefiles]
-        # audio_path = Path(app.root_path) / 'resources' / voicefile
-        video_path = generate_video(images_path, audio_path, metadata)
+    images_path = [Path(app.root_path) / 'resources/inprocess' / img_path.split('/')[-1] for img_path in imagefiles]
+    audio_path = Path(app.root_path) / 'resources/inprocess/speech.mp3'
+
+    if images_path and audio_path and metadata and background_volume:
+        video_path = generate_video(images_path, audio_path, metadata, background_volume = background_volume)
         video_relative_path = video_path.relative_to(Path(app.root_path))
         return jsonify({'video_path': str(video_relative_path)})
     else:
-        return jsonify({'error': 'Missing image or voice file paths'}), 400
+        return jsonify({'error': 'Missing image or voice file paths or metadata'}), 400
     
 @app.route('/generateMetadata', methods=['POST'])
 def metadata():
@@ -147,6 +150,6 @@ def metadata():
     story = data.get('story')
     if story:
         metadata = identify_metadata(story, api_key)
-        return jsonify(metadata), 200
+        return jsonify({'metadata': metadata}), 200
     else:
         return jsonify({'error': 'No story provided'}), 400

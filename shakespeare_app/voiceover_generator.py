@@ -14,6 +14,6 @@ def generate_voiceover(text,voice="alloy"):
         voice=voice,
         input=text
     )
-    speech_file_path = Path(__file__).parent / "resources/speech.mp3"
+    speech_file_path = Path(__file__).parent / "resources/inprocess/speech.mp3"
     response.stream_to_file(speech_file_path)
     return speech_file_path
