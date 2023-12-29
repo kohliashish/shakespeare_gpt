@@ -63,10 +63,11 @@ function updateUIWithStory(section, data) {
             videoElement.autoplay = true;
             videoElement.loop = true;
             videoSectionContent.appendChild(videoElement);
+            showElement('videoSection');
         }
         showElement('imageSection-Button');
         // Renaming the button's text
-        document.getElementById('imageSection-Button').value = "Re-generate video"
+        document.getElementById('imageSection-Button').innerText = "Re-generate video"
     }
     if (section == 'infoDisplay') {
         const metadataSection = document.getElementById('metadataSection');

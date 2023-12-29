@@ -11,5 +11,6 @@
     "indian2.mp3": ["indian", "folk", "regional", "tabla", "general", "story"],
     "indian3.mp3": ["indian", "folk", "regional", "tabla", "general", "story"],
     "upbeat1.mp3": ["general", "story", "upbeat", "futuristic"],
-    "upbeat2.mp3": ["general", "story", "upbeat", "futuristic"]
+    "upbeat2.mp3": ["general", "story", "upbeat", "futuristic"],
+    "news1.mp3": ["news", "general", "world", "global", "upbeat"]
 }

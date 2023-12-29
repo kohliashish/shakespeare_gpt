@@ -89,6 +89,7 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
             return None
         finally:
             audio_voiceover = AudioFileClip(str(adjusted_voiceover_path))
+            print (f"[INFO] Voiceover duration: {audio_voiceover.duration}")
     # audio_voiceover = audio_voiceover.subclip(0,max_duration)
     # Load background music
     bg_audio_reduced_volume_path = Path(__file__).parent / "resources/inprocess/bgAudio.mp3"
@@ -110,11 +111,14 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
 
     #Append Suffix
     suffix_path = Path(__file__).parent / "resources/suffix.mp4"
-    suffix_clip = VideoFileClip(str(suffix_path)).set_duration(1)
+    suffix_clip = VideoFileClip(str(suffix_path)).subclip(0,1)
+    #Second check, just because...
     if final_duration > max_duration:
         video = video.subclip(0, max_duration)
     
     final_video = concatenate_videoclips([video,suffix_clip], method = "compose")
+    # Final final check..!!
+    final_video = final_video.subclip(0,max_duration+1)
 
     # Crop video to YouTube Shorts size
     # Calculate the center coordinates of the video
@@ -129,6 +133,7 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     final_video = final_video.crop(x1=crop_x, y1=crop_y, width=576, height=1024)
 
     #Logging
+    print(f"[INFO] Final video duration: {final_video.duration}")
     print(f"[INFO] Creating a video file with following background audio: {bg_audio_path} with following volume: {background_volume}")
 
     # Write the result to a file

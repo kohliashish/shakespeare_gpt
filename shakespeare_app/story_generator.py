@@ -75,7 +75,7 @@ def identify_metadata(story_text, api_key):
     response = client.chat.completions.create(
         model=model_version,
         messages=[
-            {"role": "system", "content": "You are a smart classifier. You create a JSON object containing story metadata as provided in the prompt. This JSON object should have 3 elements - 1. Story Title, 2. Story description (30 words or less), 3. Genre (2 or 3 words from this list to describe the story - 'upbeat', 'melodramatic', 'futuristic', 'murder', 'scary', 'slow', 'asian', 'eerie', 'tabla', 'mystery', 'regional', 'horror', 'crime', 'creepy', 'serious', 'country', 'ghostly', 'story', 'indian', 'general', 'cartoon', 'folk', 'whimsical'). The output should have exactly 3 fields - \"title\", \"description\", and \"genre\"."},
+            {"role": "system", "content": "You are a smart classifier. You create a JSON object containing story metadata as provided in the prompt. This JSON object should have 3 elements - 1. Story Title, 2. Story description (30 words or less), 3. Genre (2 or 3 words from this list to describe the story - 'upbeat', 'melodramatic', 'futuristic', 'murder', 'scary', 'slow', 'asian', 'eerie', 'tabla', 'mystery', 'regional', 'horror', 'crime', 'creepy', 'serious', 'country', 'ghostly', 'story', 'indian', 'general', 'cartoon', 'folk', 'whimsical', 'news', 'general', 'world', 'global'). The output should have exactly 3 fields - \"title\", \"description\", and \"genre\"."},
             {"role": "user", "content": story_text}
         ],
         max_tokens=3000,
