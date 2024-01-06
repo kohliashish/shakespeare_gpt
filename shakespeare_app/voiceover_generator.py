@@ -2,15 +2,14 @@ from openai import OpenAI
 from pathlib import Path
 from flask import current_app as app
 
-def generate_voiceover(text,voice="alloy"):
-    api_key = app.config['OPENAI_API_KEY']
+def generate_voiceover(text,api_key,model_version,voice="alloy"):
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key=api_key,
     )
 
     response = client.audio.speech.create(
-        model="tts-1-hd",
+        model=model_version,
         voice=voice,
         input=text
     )

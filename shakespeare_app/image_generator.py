@@ -6,16 +6,14 @@ from pathlib import Path
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-chat_model_version = "gpt-4"
-image_model_version = "dall-e-3"
 
-def review_prompt(prompt,api_key):
+def review_prompt(prompt,api_key, text_model_version):
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key=api_key,
     )
     response = client.chat.completions.create(
-        model=chat_model_version,
+        model=text_model_version,
         messages=[
             {"role": "system", "content": "Please review the following prompt for potential content policy violations and re-write if needed."},
             {"role": "user", "content": prompt}
@@ -27,7 +25,7 @@ def review_prompt(prompt,api_key):
 
     #Ask GPT to review and suggest modifications if necessary
 
-def generate_image(prompt,context, name,batch_number,api_key):
+def generate_image(prompt,context, name,batch_number,api_key, image_model_version, text_model_version):
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key=api_key,
@@ -36,7 +34,7 @@ def generate_image(prompt,context, name,batch_number,api_key):
     # 
     initial_prompt=f"The image should be generated in tall mode. You look at the Context and then use the Prompt to generate the image. Create a hyperrealistic life-like image using the following Context: \n\n{context} and of the following prompt: \n\n{prompt}"
     # Re-write if the text contains any sensitive words that can potentially cause policy violations
-    custom_prompt = review_prompt(initial_prompt, api_key)
+    custom_prompt = review_prompt(initial_prompt, api_key, text_model_version)
     try:
         response = client.images.generate(
             model=image_model_version,
@@ -58,7 +56,7 @@ def generate_image(prompt,context, name,batch_number,api_key):
         print(f"OpenAI API Error: {e}")
         return "Error"
 
-def generate_images(prompts, context, total_prompts, api_key):
+def generate_images(prompts, context, total_prompts, api_key, image_model_version, text_model_version):
     generated_images = []
     max_parallel_requests = 5
     print(f"[INFO] Generating {total_prompts} images")
@@ -67,7 +65,7 @@ def generate_images(prompts, context, total_prompts, api_key):
         prompt_batch = prompts[i:i + max_parallel_requests]
         context_batch = context[i:i + max_parallel_requests]
         with ThreadPoolExecutor(max_workers=2) as executor:
-            future_to_image = {executor.submit(generate_image, prompt[1], context_batch[prompt[0]], prompt[0], int(i/5), api_key): prompt for prompt in enumerate(prompt_batch)}
+            future_to_image = {executor.submit(generate_image, prompt[1], context_batch[prompt[0]], prompt[0], int(i/5), api_key, image_model_version, text_model_version): prompt for prompt in enumerate(prompt_batch)}
             for future in as_completed(future_to_image):
                 image_path = future.result()
                 generated_images.append(image_path)

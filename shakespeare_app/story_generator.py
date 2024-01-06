@@ -2,9 +2,7 @@ from openai import OpenAI
 from flask import current_app as app
 import json, re
 
-model_version = "gpt-4"
-
-def generate_story(prompt, context, api_key, max_tokens=4000):
+def generate_story(prompt, context, api_key, model_version, max_tokens=4000):
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key=api_key,
@@ -47,7 +45,7 @@ def generate_plain_text_description(characters):
         flattened_character_list.append(character)
     return flattened_character_list
 
-def extract_characters(story_text, api_key, max_tokens=3000):
+def extract_characters(story_text, api_key, model_version, max_tokens=3000):
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key=api_key,
@@ -66,7 +64,7 @@ def extract_characters(story_text, api_key, max_tokens=3000):
     characters = response.choices[0].message.content
     return generate_plain_text_description(characters)
 
-def identify_metadata(story_text, api_key):
+def identify_metadata(story_text, api_key, model_version):
     client = OpenAI(
         # defaults to os.environ.get("OPENAI_API_KEY")
         api_key=api_key,

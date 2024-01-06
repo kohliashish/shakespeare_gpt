@@ -101,9 +101,13 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     if combined_audio.duration > max_duration:
         combined_audio = combined_audio.subclip(0,max_duration)
     
+    print("Writing processed audio to disk...")
+    final_audio_path = Path(__file__).parent / "resources/inprocess/speech_final.mp3"
+    combined_audio.write_audiofile(str(final_audio_path), fps=44100)
+
     # Extend the duration of last image based on voice over length if required 
-    if final_duration < max_duration:
-        last_clip_duration = max_duration - sum(clip.duration for clip in clips[:-1])
+    if final_duration < combined_audio.duration:
+        last_clip_duration = combined_audio.duration - sum(clip.duration for clip in clips[:-1])
         clips[-1] = clips[-1].set_duration(last_clip_duration)
         video = concatenate_videoclips(clips, method = "compose")
         final_duration += last_clip_duration
@@ -118,7 +122,8 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     
     final_video = concatenate_videoclips([video,suffix_clip], method = "compose")
     # Final final check..!!
-    final_video = final_video.subclip(0,max_duration+1)
+    if final_video.duration > max_duration:
+        final_video = final_video.subclip(0,max_duration+1)
 
     # Crop video to YouTube Shorts size
     # Calculate the center coordinates of the video
@@ -138,7 +143,7 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
 
     # Write the result to a file
     video_file_path = Path(__file__).parent / f"resources/inprocess/{output_video_file}"
-    final_video.write_videofile(str(video_file_path), temp_audiofile="temp-audio.m4a", remove_temp=True, codec="libx264", audio_codec="aac")
+    final_video.write_videofile(str(video_file_path), temp_audiofile="temp-audio.m4a", remove_temp=True, codec="libx264", audio_codec="aac", fps=24)
     # Write metadata along with the file
     md_file_path = Path(__file__).parent / f"resources/inprocess/{output_metadata_file}"
     metadata = dumps(metadata, indent=4)

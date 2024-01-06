@@ -12,6 +12,9 @@ import git, json
 
 #Global Context
 api_key = app.config['OPENAI_API_KEY']
+text_model_version = app.config['OPENAI_TEXT_MODEL']
+image_model_version = app.config['OPENAI_IMAGE_MODEL']
+tts_model_version = app.config['OPENAI_TTS_MODEL']
 audio_length = 0
 images_path = []
 tts_voices = ["alloy","echo","fable","onyx","nova","shimmer"]
@@ -46,7 +49,7 @@ def story():
     prompt = data.get('prompt')
     context = data.get('context')
     if prompt:
-        story = generate_story(prompt, context, api_key)
+        story = generate_story(prompt, context, api_key, text_model_version)
         return jsonify({'story': story}), 200
     else:
         return jsonify({'error': 'No prompt provided'}), 400
@@ -56,7 +59,7 @@ def characters():
     data = request.get_json()
     story = data.get('story')
     if story:
-        characters = extract_characters(story)
+        characters = extract_characters(story, api_key, text_model_version)
         return jsonify({'characters': characters}), 200
     else:
         return jsonify({'error': 'No prompt provided'}), 400
@@ -72,7 +75,7 @@ def frames():
         lines = [line for line in lines if line]
         # Creating a cumulative list of lines for retaining context
         lines_cumulative = list(accumulate(lines, lambda x, y: '. '.join([x, y])))
-        images_path = generate_images(lines,lines_cumulative,len(lines),api_key)
+        images_path = generate_images(lines,lines_cumulative,len(lines),api_key,image_model_version)
         images_relative_paths = [str(Path('resources/inprocess').joinpath(Path(p).name)) for p in images_path]
         return jsonify({'image_paths': images_relative_paths}), 200
     else:
@@ -85,13 +88,13 @@ def voiceover():
         story = data.get('text')
         voice = data.get('voice')
         if story and voice:
-            voice_file = generate_voiceover(story, voice)
+            voice_file = generate_voiceover(story, api_key, tts_model_version, voice)
             response = make_response(send_file(voice_file, as_attachment=True, mimetype='audio/mpeg'))
             response.headers['Content-Type'] = 'audio/mpeg'
             return response
         elif story and not voice:
             voice = random.choice(tts_voices)
-            voice_file = generate_voiceover(story, voice)
+            voice_file = generate_voiceover(story, api_key, tts_model_version, voice)
             response = make_response(send_file(voice_file, as_attachment=True, mimetype='audio/mpeg'))
             response.headers['Content-Type'] = 'audio/mpeg'
             return response
@@ -108,17 +111,17 @@ def images():
     image_name = data.get('name')
     context = data.get('context')
     if prompt and image_name and context:
-        image_url = generate_image(prompt, context, image_name, batch, api_key)
+        image_url = generate_image(prompt, context, image_name, batch, api_key, image_model_version, text_model_version)
         return send_file(image_url, as_attachment=True, mimetype='image/jpg')
     elif prompt and not image_name:
         image_name = random.randint(0,99)
         if context:
-            image_url = generate_image(prompt, context, image_name, batch, api_key)
+            image_url = generate_image(prompt, context, image_name, batch, api_key, image_model_version, text_model_version)
             return send_file(image_url, as_attachment=True, mimetype='image/jpg')
         else:
             #Default context in it's absence
             context = 'The image should be life-like and ultra high definition.'
-            image_url = generate_image(prompt, context, image_name, batch, api_key)
+            image_url = generate_image(prompt, context, image_name, batch, api_key, image_model_version, text_model_version)
             return send_file(image_url, as_attachment=True, mimetype='image/jpg')
     else:
         return jsonify({'error': 'No prompt provided'}), 400
@@ -145,7 +148,7 @@ def metadata():
     data = request.get_json()
     story = data.get('story')
     if story:
-        metadata = identify_metadata(story, api_key)
+        metadata = identify_metadata(story, api_key, text_model_version)
         return jsonify({'metadata': metadata}), 200
     else:
         return jsonify({'error': 'No story provided'}), 400
