@@ -75,7 +75,7 @@ def frames():
         lines = [line for line in lines if line]
         # Creating a cumulative list of lines for retaining context
         lines_cumulative = list(accumulate(lines, lambda x, y: '. '.join([x, y])))
-        images_path = generate_images(lines,lines_cumulative,len(lines),api_key,image_model_version)
+        images_path = generate_images(lines,lines_cumulative,len(lines),api_key,image_model_version,text_model_version)
         images_relative_paths = [str(Path('resources/inprocess').joinpath(Path(p).name)) for p in images_path]
         return jsonify({'image_paths': images_relative_paths}), 200
     else:

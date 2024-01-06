@@ -13,7 +13,7 @@ def generate_story(prompt, context, api_key, model_version, max_tokens=4000):
             {"role": "system", "content": context},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=max_tokens,
+        # max_tokens=max_tokens,   Removing token restriction
         temperature=0.7
     )
 
