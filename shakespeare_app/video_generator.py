@@ -88,7 +88,7 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     adjust_volume(bg_audio_path,bg_audio_reduced_volume_path,background_volume) #Reducing volume using ffmpeg
     audio_bg = AudioFileClip(str(bg_audio_reduced_volume_path))
     # Combining both audio files
-    combined_audio = CompositeAudioClip([audio_voiceover,audio_bg])
+    combined_audio = CompositeAudioClip([audio_voiceover,audio_bg]).set_duration(audio_voiceover.duration)
     # Trimming the final audio if it is longer than 58 seconds
     if combined_audio.duration > max_duration:
         combined_audio = combined_audio.subclip(0,max_duration)
