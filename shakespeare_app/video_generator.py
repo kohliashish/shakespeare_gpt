@@ -133,7 +133,7 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
         video = video.subclip(0, max_duration)
         final_duration = video.duration
     
-    final_video = concatenate_videoclips([intro_clip, video,outro_clip], method = "compose")
+    final_video = concatenate_videoclips([intro_clip, video,outro_clip], method = "chain")
     final_duration = final_duration + (intro_clip.duration) + (outro_clip.duration)
     # Final final check..!!
     if final_video.duration > (max_duration + (intro_clip.duration) + (outro_clip.duration)):
