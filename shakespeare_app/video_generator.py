@@ -126,8 +126,8 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     #Append Intro and Outro
     outro_path = Path(__file__).parent / "resources/outro.mp4"
     intro_path = Path(__file__).parent / "resources/intro.mp4"
-    outro_clip = VideoFileClip(str(outro_path)).subclip(0,2)
-    intro_clip = VideoFileClip(str(intro_path))
+    outro_clip = VideoFileClip(str(outro_path)).subclip(0,2).resize((576, 1024))
+    intro_clip = VideoFileClip(str(intro_path)).resize((576, 1024))
     #Second check, just because...
     if final_duration > max_duration:
         video = video.subclip(0, max_duration)
