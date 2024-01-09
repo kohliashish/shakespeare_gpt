@@ -65,22 +65,6 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     final_duration = 0
     output_video_file=sub('[\W_]+', '', metadata['title'])+'.mp4'
     output_metadata_file=sub('[\W_]+', '', metadata['title'])+'.json'
-    clip_duration = max_duration/len(image_paths)
-    bg_audio_path = select_background_music(metadata['genre'])
-
-    for img_path in image_paths:
-        img_path_str = str(img_path)
-        if Path(img_path_str).exists():
-            img = Image.open(img_path_str)
-            img_np = array(img)
-            clip = ImageClip(img_np).set_duration(clip_duration + transition_duration)
-            clip = fadein(clip, transition_duration).fadeout(transition_duration)
-            clip = clip.set_start(final_duration)
-            final_duration += clip_duration
-            clips.append(clip)
-
-    # Create a composite video clip
-    video = CompositeVideoClip(clips, size=clips[0].size)
 
     # Load voiceover
     audio_voiceover = AudioFileClip(str(audio_path))
@@ -109,6 +93,25 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     print("Writing processed audio to disk...")
     final_audio_path = Path(__file__).parent / "resources/inprocess/speech_final.mp3"
     combined_audio.write_audiofile(str(final_audio_path), fps=44100)
+
+
+    # Generating video
+    clip_duration = combined_audio.duration/len(image_paths)
+    bg_audio_path = select_background_music(metadata['genre'])
+    for img_path in image_paths:
+        img_path_str = str(img_path)
+        if Path(img_path_str).exists():
+            img = Image.open(img_path_str)
+            img_np = array(img)
+            clip = ImageClip(img_np).set_duration(clip_duration + transition_duration)
+            clip = fadein(clip, transition_duration).fadeout(transition_duration)
+            clip = clip.set_start(final_duration)
+            final_duration += clip_duration
+            clips.append(clip)
+
+    # Create a composite video clip
+    video = CompositeVideoClip(clips, size=clips[0].size)
+
 
     # Extend the duration of last image based on voice over length if required 
     if final_duration < combined_audio.duration:
