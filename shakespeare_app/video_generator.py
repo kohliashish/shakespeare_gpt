@@ -41,7 +41,7 @@ def adjust_volume(input_audio_path, output_audio_path, volume):
         ]
         run(cmd, check=True)
     except Exception as e:
-        print(f"Error in adjusting volume: {e}")
+        print(f"[ERROR] Error in adjusting volume: {e}")
 
 def adjust_speed(input_audio_path, output_audio_path, target_duration):
     try:
@@ -56,7 +56,7 @@ def adjust_speed(input_audio_path, output_audio_path, target_duration):
         ]
         run(cmd, check=True)
     except Exception as e:
-        print(f"Error in adjusting speed: {e}")
+        print(f"[ERROR] Error in adjusting speed: {e}")
         raise
 
 def generate_video(image_paths, audio_path, metadata, transition_duration=1, background_volume = 0.5):
@@ -65,6 +65,7 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     final_duration = 0
     output_video_file=sub('[\W_]+', '', metadata['title'])+'.mp4'
     output_metadata_file=sub('[\W_]+', '', metadata['title'])+'.json'
+    bg_audio_path = select_background_music(metadata['genre'])
 
     # Load voiceover
     audio_voiceover = AudioFileClip(str(audio_path))
@@ -72,13 +73,15 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
     if audio_voiceover.duration > max_duration:
         adjusted_voiceover_path = Path(__file__).parent / "resources/inprocess/speech_adjusted.mp3"
         try:
+            print (f"[INFO] Adjusting voiceover duration ... ")
             adjust_speed(str(audio_path), str(adjusted_voiceover_path), max_duration)
         except Exception as e:
-            print(f"Error in adjusting speed: {e}")
+            print(f"[ERROR] Error in adjusting speed: {e}")
             return None
         finally:
             audio_voiceover = AudioFileClip(str(adjusted_voiceover_path))
             print (f"[INFO] Voiceover duration: {audio_voiceover.duration}")
+
     # audio_voiceover = audio_voiceover.subclip(0,max_duration)
     # Load background music
     bg_audio_reduced_volume_path = Path(__file__).parent / "resources/inprocess/bgAudio.mp3"
@@ -97,7 +100,6 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
 
     # Generating video
     clip_duration = combined_audio.duration/len(image_paths)
-    bg_audio_path = select_background_music(metadata['genre'])
     for img_path in image_paths:
         img_path_str = str(img_path)
         if Path(img_path_str).exists():
