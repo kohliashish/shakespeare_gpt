@@ -14,7 +14,12 @@ def select_background_music(story_genre_tags):
     audio_tags = loads(open(audio_tags_path, "r").read())
     matched_audio_files = []
     default_audio_file = 'upbeat1.mp3'
-    story_genre_tags = story_genre_tags.strip().split(",")
+    if isinstance(story_genre_tags, list):
+        story_genre_tags = [item.strip() for item in story_genre_tags]
+    elif isinstance(story_genre_tags, str):
+        story_genre_tags = story_genre_tags.strip().split(",")
+    else:
+        return Path(__file__).parent / f"resources/audio_files/{default_audio_file}"
 
     for audio_file, tags in audio_tags.items():
         overlap = len(set(story_genre_tags) & set(tags))
@@ -56,7 +61,7 @@ def adjust_speed(input_audio_path, output_audio_path, target_duration):
 
 def generate_video(image_paths, audio_path, metadata, transition_duration=1, background_volume = 0.5):
     clips = []
-    max_duration = 58 # Leaving 1 second for Suffix video
+    max_duration = 55 # Leaving 2 seconds for Intro and 2 seconds for Outro
     final_duration = 0
     output_video_file=sub('[\W_]+', '', metadata['title'])+'.mp4'
     output_metadata_file=sub('[\W_]+', '', metadata['title'])+'.json'
@@ -79,7 +84,7 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
 
     # Load voiceover
     audio_voiceover = AudioFileClip(str(audio_path))
-    #Speed up voice over if it is longer than 58 seconds
+    #Speed up voice over if it is longer than max duration
     if audio_voiceover.duration > max_duration:
         adjusted_voiceover_path = Path(__file__).parent / "resources/inprocess/speech_adjusted.mp3"
         try:
@@ -113,17 +118,21 @@ def generate_video(image_paths, audio_path, metadata, transition_duration=1, bac
         final_duration += last_clip_duration
     video = video.set_audio(combined_audio)
 
-    #Append Suffix
-    suffix_path = Path(__file__).parent / "resources/suffix.mp4"
-    suffix_clip = VideoFileClip(str(suffix_path)).subclip(0,1)
+    #Append Intro and Outro
+    outro_path = Path(__file__).parent / "resources/outro.mp4"
+    intro_path = Path(__file__).parent / "resources/intro.mp4"
+    outro_clip = VideoFileClip(str(outro_path)).subclip(0,2)
+    intro_clip = VideoFileClip(str(intro_path))
     #Second check, just because...
     if final_duration > max_duration:
         video = video.subclip(0, max_duration)
+        final_duration = video.duration
     
-    final_video = concatenate_videoclips([video,suffix_clip], method = "compose")
+    final_video = concatenate_videoclips([intro_clip, video,outro_clip], method = "compose")
+    final_duration = final_duration + (intro_clip.duration) + (outro_clip.duration)
     # Final final check..!!
-    if final_video.duration > max_duration:
-        final_video = final_video.subclip(0,max_duration+1)
+    if final_video.duration > (max_duration + (intro_clip.duration) + (outro_clip.duration)):
+        final_video = final_video.subclip(0,max_duration + (intro_clip.duration) + (outro_clip.duration))
 
     # Crop video to YouTube Shorts size
     # Calculate the center coordinates of the video

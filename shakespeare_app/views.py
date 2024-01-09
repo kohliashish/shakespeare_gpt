@@ -130,7 +130,8 @@ def images():
 def video():
     data = request.get_json()
     imagefiles = data.get('imagefiles')
-    metadata = data.get('metadata')
+    # metadata = data.get('metadata')
+    metadata = json.loads('{"title":"Justin Trudeau\'s Aircraft Becomes \'Inoperable\' in Jamaica", "genre":"news"}')
     background_volume = data.get('background_volume')
 
     images_path = [Path(app.root_path) / 'resources/inprocess' / img_path.split('/')[-1] for img_path in imagefiles]
